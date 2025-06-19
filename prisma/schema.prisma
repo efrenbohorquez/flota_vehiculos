@@ -1,0 +1,282 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(USER)
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relaciones de autenticación
+  accounts Account[]
+  sessions Session[]
+
+  // Relaciones del sistema
+  assignedVehicles  VehicleAssignment[]
+  maintenanceReports MaintenanceReport[]
+  fuelRecords       FuelRecord[]
+  tripRecords       TripRecord[]
+  createdVehicles   Vehicle[]          @relation("CreatedBy")
+  updatedVehicles   Vehicle[]          @relation("UpdatedBy")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  DRIVER
+  USER
+}
+
+model Vehicle {
+  id                String   @id @default(cuid())
+  plate             String   @unique
+  brand             String
+  model             String
+  year              Int
+  color             String
+  chassisNumber     String   @unique
+  engineNumber      String   @unique
+  fuelType          FuelType
+  capacity          Int      // Capacidad de pasajeros
+  mileage           Int      @default(0)
+  status            VehicleStatus @default(AVAILABLE)
+  acquisitionDate   DateTime
+  lastMaintenanceDate DateTime?
+  nextMaintenanceDate DateTime?
+  insuranceExpiry   DateTime
+  soatExpiry        DateTime
+  technicalReviewExpiry DateTime
+  observations      String?
+  active            Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  createdById       String
+  updatedById       String?
+
+  // Relaciones
+  createdBy         User     @relation("CreatedBy", fields: [createdById], references: [id])
+  updatedBy         User?    @relation("UpdatedBy", fields: [updatedById], references: [id])
+  
+  assignments       VehicleAssignment[]
+  maintenanceReports MaintenanceReport[]
+  fuelRecords       FuelRecord[]
+  tripRecords       TripRecord[]
+  documents         VehicleDocument[]
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  IN_USE
+  MAINTENANCE
+  OUT_OF_SERVICE
+  INACTIVE
+}
+
+enum FuelType {
+  GASOLINE
+  DIESEL
+  GAS
+  ELECTRIC
+  HYBRID
+}
+
+model VehicleDocument {
+  id          String   @id @default(cuid())
+  vehicleId   String
+  type        DocumentType
+  number      String
+  issueDate   DateTime
+  expiryDate  DateTime?
+  filePath    String?
+  observations String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+}
+
+enum DocumentType {
+  REGISTRATION
+  INSURANCE
+  SOAT
+  TECHNICAL_REVIEW
+  OTHER
+}
+
+model Driver {
+  id            String   @id @default(cuid())
+  identification String  @unique
+  name          String
+  lastName      String
+  licenseNumber String   @unique
+  licenseType   String
+  licenseExpiry DateTime
+  phone         String?
+  email         String?
+  address       String?
+  emergencyContact String?
+  emergencyPhone   String?
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  assignments   VehicleAssignment[]
+  tripRecords   TripRecord[]
+}
+
+model VehicleAssignment {
+  id         String   @id @default(cuid())
+  vehicleId  String
+  userId     String?
+  driverId   String?
+  startDate  DateTime
+  endDate    DateTime?
+  purpose    String
+  observations String?
+  status     AssignmentStatus @default(ACTIVE)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  vehicle    Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  user       User?    @relation(fields: [userId], references: [id])
+  driver     Driver?  @relation(fields: [driverId], references: [id])
+}
+
+enum AssignmentStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+model MaintenanceReport {
+  id          String   @id @default(cuid())
+  vehicleId   String
+  type        MaintenanceType
+  description String
+  date        DateTime
+  mileage     Int
+  cost        Decimal  @db.Decimal(10,2)
+  supplier    String?
+  invoice     String?
+  nextDate    DateTime?
+  observations String?
+  reportedById String
+  status      MaintenanceStatus @default(PENDING)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  reportedBy  User     @relation(fields: [reportedById], references: [id])
+}
+
+enum MaintenanceType {
+  PREVENTIVE
+  CORRECTIVE
+  EMERGENCY
+  INSPECTION
+}
+
+enum MaintenanceStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model FuelRecord {
+  id          String   @id @default(cuid())
+  vehicleId   String
+  date        DateTime
+  mileage     Int
+  liters      Decimal  @db.Decimal(8,2)
+  pricePerLiter Decimal @db.Decimal(8,2)
+  totalCost   Decimal  @db.Decimal(10,2)
+  station     String?
+  observations String?
+  recordedById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  recordedBy  User     @relation(fields: [recordedById], references: [id])
+}
+
+model TripRecord {
+  id          String   @id @default(cuid())
+  vehicleId   String
+  driverId    String?
+  userId      String?
+  startDate   DateTime
+  endDate     DateTime?
+  origin      String
+  destination String
+  purpose     String
+  startMileage Int
+  endMileage  Int?
+  distance    Int?
+  observations String?
+  status      TripStatus @default(IN_PROGRESS)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  driver      Driver?  @relation(fields: [driverId], references: [id])
+  user        User?    @relation(fields: [userId], references: [id])
+}
+
+enum TripStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}

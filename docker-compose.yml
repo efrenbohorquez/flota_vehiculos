@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: flota_personeria
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - flota_network
+
+  # Aplicación Next.js
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@db:5432/flota_personeria"
+      NEXTAUTH_URL: "http://localhost:3000"
+      NEXTAUTH_SECRET: "super-secret-key-change-in-production"
+      NODE_ENV: "production"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    networks:
+      - flota_network
+
+  # Prisma Studio (opcional, para desarrollo)
+  prisma-studio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: npx prisma studio --hostname 0.0.0.0
+    restart: always
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@db:5432/flota_personeria"
+    ports:
+      - "5555:5555"
+    depends_on:
+      - db
+    networks:
+      - flota_network
+    profiles:
+      - dev
+
+volumes:
+  postgres_data:
+
+networks:
+  flota_network:
+    driver: bridge

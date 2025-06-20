@@ -1,6 +1,23 @@
 # Sistema de Gestión de Flota Vehicular - Personería de Bogotá
 
+[![GitHub Repository](https://img.shields.io/badge/GitHub-flota__vehiculos-blue?style=flat&logo=github)](https://github.com/efrenbohorquez/flota_vehiculos)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-5.19-teal?style=flat&logo=prisma)](https://www.prisma.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue?style=flat&logo=postgresql)](https://www.postgresql.org/)
+
 Sistema integral para la gestión de la flota vehicular de la Personería de Bogotá, desarrollado con Next.js 14, TypeScript, Prisma y PostgreSQL.
+
+## 📋 Tabla de Contenidos
+
+- [Características](#-características-principales)
+- [Tecnologías](#-tecnologías)
+- [Instalación](#-instalación-rápida)
+- [Uso](#-uso)
+- [Contribuir](#-contribuir)
+- [Documentación](#-documentación)
+- [Estado del Proyecto](#-estado-del-proyecto)
 
 ## 🚀 Características Principales
 
@@ -196,11 +213,44 @@ docker build -t flota-personeria .
 docker run -p 3000:3000 flota-personeria
 ```
 
-## 🤝 Contribución
+## 🤝 Contribuir
 
+¡Las contribuciones son bienvenidas! Por favor lee [CONTRIBUTING.md](./CONTRIBUTING.md) para más detalles sobre nuestro proceso de desarrollo.
+
+### Proceso Rápido
 1. Fork el repositorio
 2. Crear una rama para tu feature (`git checkout -b feature/nueva-funcionalidad`)
-3. Commit tus cambios (`git commit -am 'Agregar nueva funcionalidad'`)
+3. Commit tus cambios (`git commit -am 'feat: agregar nueva funcionalidad'`)
+4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
+5. Crear un Pull Request
+
+### Reportar Issues
+Si encuentras un bug o tienes una sugerencia, por favor [crea un issue](https://github.com/efrenbohorquez/flota_vehiculos/issues).
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](./LICENSE) para más detalles.
+
+## 🙏 Agradecimientos
+
+- [Next.js](https://nextjs.org/) - Framework de React
+- [Prisma](https://www.prisma.io/) - ORM moderno para TypeScript
+- [Tailwind CSS](https://tailwindcss.com/) - Framework de CSS
+- [Shadcn/ui](https://ui.shadcn.com/) - Componentes de UI
+- [NextAuth.js](https://next-auth.js.org/) - Autenticación para Next.js
+
+## 📞 Contacto
+
+- **Repositorio**: [https://github.com/efrenbohorquez/flota_vehiculos](https://github.com/efrenbohorquez/flota_vehiculos)
+- **Issues**: [GitHub Issues](https://github.com/efrenbohorquez/flota_vehiculos/issues)
+- **Email**: efrenbohorquez@personeria.gov.co
+
+---
+
+<div align="center">
+  <strong>Sistema de Gestión de Flota Vehicular</strong><br>
+  Desarrollado con ❤️ para la Personería de Bogotá
+</div>
 4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
 5. Crear un Pull Request
 
